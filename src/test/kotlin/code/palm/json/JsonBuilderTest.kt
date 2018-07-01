@@ -113,18 +113,6 @@ class JsonBuilderTest {
     }
 
     @Test
-    fun `jsonArray nested arrayOf`() {
-        val json = jsonArray(
-            arrayOf(1, 2, 3)
-        )
-
-        assertEquals(
-            """[ [ 1, 2, 3 ] ]""",
-            json.toString()
-        )
-    }
-
-    @Test
     fun `jsonArray emptyArray`() {
         val json = jsonArray()
         assertEquals("[ ]", json.toString())
@@ -135,4 +123,56 @@ class JsonBuilderTest {
         val json = jsonObj { }
         assertEquals("{ }", json.toString())
     }
+
+    @Test
+    fun `jsonArray from Array`() {
+        val json = jsonArray(
+            arrayOf(1, 2, 3),
+            arrayOf(4, 5, 6)
+        )
+
+        assertEquals(
+            """[ [ 1, 2, 3 ], [ 4, 5, 6 ] ]""",
+            json.toString()
+        )
+    }
+
+    @Test
+    fun `jsonArray from Collection`() {
+        val json = jsonArray(
+            listOf(1, 2, 3),
+            setOf(4, 5, 6)
+        )
+
+        assertEquals("""[ [ 1, 2, 3 ], [ 4, 5, 6 ] ]""", json.toString())
+    }
+
+    @Test
+    fun `value from other object`() {
+        val json = jsonObj {
+            "foo" to TestClass(42)
+        }
+
+        assertEquals(
+            """{ "foo": "TestClass(id=42)" }""",
+            json.toString()
+        )
+    }
+
+    @Test
+    fun `string with escape sequences`() {
+        val json = jsonArray(
+            "foo \"bar\"",
+            "line1\nline2",
+            "\ttabbed",
+            "\\backslash"
+        )
+
+        assertEquals(
+            """[ "foo \"bar\"", "line1\nline2", "\ttabbed", "\\backslash" ]""",
+            json.toString()
+        )
+    }
+
+    private data class TestClass(val id: Int)
 }

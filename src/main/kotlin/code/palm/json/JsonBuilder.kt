@@ -107,8 +107,21 @@ class JsonString(private val value: String) : JsonNode() {
     override fun toString(): String = '"' + value.safeEscape() + '"'
 
     private fun String.safeEscape(): String {
-        // TODO
-        return this
+        val safeString = StringBuilder()
+        this.forEach { c ->
+            safeString.append(
+                when (c) {
+                    '"' -> "\\\""
+                    '\\' -> "\\\\"
+                    '\b' -> "\\b"
+                    '\n' -> "\\n"
+                    '\r' -> "\\r"
+                    '\t' -> "\\t"
+                    else -> c
+                }
+            )
+        }
+        return safeString.toString()
     }
 }
 
