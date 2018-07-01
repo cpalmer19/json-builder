@@ -32,19 +32,18 @@ fun jsonArray(vararg values: Any?): JsonArray {
  *
  * null, string, number, and boolean values are wrapped accordingly.
  * JsonArrays and JsonObjects are left unchanged.
- * Arrays are turned into JsonArrays.
+ * Arrays and Collections are turned into JsonArrays.
  * Any other object is converted to a JsonString using the value returned by toString().
  */
-fun node(value: Any?): JsonNode {
-    return when (value) {
-        null -> JsonNull()
-        is JsonNode -> value
-        is String -> JsonString(value)
-        is Number -> JsonNumber(value)
-        is Boolean -> JsonBoolean(value)
-        is Array<*> -> jsonArray(*value)
-        else -> JsonString(value.toString())
-    }
+fun node(value: Any?): JsonNode = when (value) {
+    null -> JsonNull()
+    is JsonNode -> value
+    is String -> JsonString(value)
+    is Number -> JsonNumber(value)
+    is Boolean -> JsonBoolean(value)
+    is Array<*> -> jsonArray(*value)
+    is Collection<*> -> jsonArray(*(value.toTypedArray()))
+    else -> JsonString(value.toString())
 }
 
 //------------------------------------------------------------
