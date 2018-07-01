@@ -1,0 +1,23 @@
+val json = jsonObj {
+    "id" to 583
+    "name" to "Craig"
+    "items" to arrayOf(1, 2, 3)
+    "items2" to jsonArray(
+        jsonObj {
+            "foo" to "bar"
+            "hi" to jsonObj {
+                "more" to "stuff"
+            }
+        },
+        jsonObj {
+            "foo" to "bar2"
+            "hi" to jsonObj {
+                "more" to "stuff2"
+            }
+        }
+    )
+    "items3" to jsonArray(
+        12,
+        "element number 2"
+    )
+}
