@@ -1,10 +1,9 @@
 package code.palm.json
 
 /**
- * Primary method for building a JsonObject.
- * Uses a higher-order function for the curly-brace syntax.
- * Within the body use String.to() (infix) for any object to add the
- * mapping to this JsonObject.
+ * Constructs a JsonObject using the curly-brace syntax of a lambda.
+ * Within the body use 'String to Any?' for any object to add the mapping to
+ * this JsonObject.
  */
 fun jsonObj(body: JsonObject.() -> Unit): JsonObject {
     val obj = JsonObject()
@@ -13,14 +12,11 @@ fun jsonObj(body: JsonObject.() -> Unit): JsonObject {
 }
 
 /**
- * Secondary method for building a JsonObject.
- * Uses a vararg of String mappings to any object.
+ * Constructs a JsonObject from a vararg of String -> Any? mappings.
  * Useful if an array of mappings already exists.
  */
 fun jsonObj(vararg pairs: Pair<String, Any?>): JsonObject {
-    return JsonObject().apply {
-        pairs.forEach { (k, v) -> elements[k] = node(v) }
-    }
+    return JsonObject().apply { set(*pairs) }
 }
 
 /**
@@ -28,9 +24,7 @@ fun jsonObj(vararg pairs: Pair<String, Any?>): JsonObject {
  * Arguments can be any number of any type of object.
  */
 fun jsonArray(vararg values: Any?): JsonArray {
-    return JsonArray().apply {
-        values.forEach { elements += node(it) }
-    }
+    return JsonArray().apply { add(*values) }
 }
 
 /**
@@ -53,16 +47,28 @@ fun node(value: Any?): JsonNode {
     }
 }
 
+//------------------------------------------------------------
+// Node types
+
+/**
+ * Base class for a JSON node/value
+ */
 abstract class JsonNode
 
+/**
+ * An Object that contains String -> JSON value mappings
+ */
 class JsonObject : JsonNode() {
-    internal val elements = linkedMapOf<String, JsonNode>()
+    private val elements = linkedMapOf<String, JsonNode>()
 
+    /**
+     * Shortcut for mapping a String to any value within this JsonObject
+     */
     infix fun String.to(value: Any?) {
         elements[this] = node(value)
     }
 
-    fun members(vararg pairs: Pair<String, Any?>) {
+    fun set(vararg pairs: Pair<String, Any?>) {
         pairs.forEach { (k, v) -> elements[k] = node(v) }
     }
 
@@ -75,8 +81,15 @@ class JsonObject : JsonNode() {
     }
 }
 
+/**
+ * An Array that contains a series of JSON values
+ */
 class JsonArray : JsonNode() {
-    internal val elements = mutableListOf<JsonNode>()
+    private val elements = mutableListOf<JsonNode>()
+
+    fun add(vararg values: Any?) {
+        values.forEach { elements += node(it) }
+    }
 
     override fun toString(): String {
         return elements.asSequence().joinToString(
@@ -87,6 +100,10 @@ class JsonArray : JsonNode() {
     }
 }
 
+/**
+ * Represents a JSON string value.
+ * Will automatically ensure proper escape values for control characters.
+ */
 class JsonString(private val value: String) : JsonNode() {
     override fun toString(): String = '"' + value.safeEscape() + '"'
 
